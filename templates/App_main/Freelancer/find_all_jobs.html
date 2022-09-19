@@ -1,0 +1,159 @@
+{% extends 'App_main/Freelancer/freelancerBase.html' %}
+{% block title %}
+    All Jobs
+{% endblock %}
+{% block main %}
+{% load static %}
+    <style>
+        table {
+            border: 1px solid #ccc;
+            border-collapse: collapse;
+            margin: 50px auto;
+            padding: 0;
+            width: 100%;
+            table-layout: fixed;
+          }
+          
+          table tr {
+            background-color: #f8f8f8;
+            border: 1px solid #ddd;
+            padding: .35em;
+          }
+          
+          table th,
+          table td {
+            padding: .625em;
+            text-align: center;
+            font-size: 14px;
+          }
+          
+          table th {
+            font-size: .60em;
+            letter-spacing: .1em;
+            text-transform: uppercase;
+          }
+          
+          @media screen and (max-width: 600px) {
+            table {
+              border: 0;
+            }
+          
+            table caption {
+              font-size: 1.3em;
+            }
+            
+            table thead {
+              border: none;
+              clip: rect(0 0 0 0);
+              height: 1px;
+              margin: -1px;
+              overflow: hidden;
+              padding: 0;
+              position: absolute;
+              width: 1px;
+            }
+            
+            table tr {
+              border-bottom: 3px solid #ddd;
+              display: block;
+              margin-bottom: .625em;
+            }
+            
+            table td {
+              border-bottom: 1px solid #ddd;
+              display: block;
+              font-size: .8em;
+              text-align: right;
+            }
+            
+            table td::before {
+              /*
+              * aria-label has no advantage, it won't be read inside a table
+              content: attr(aria-label);
+              */
+              content: attr(data-label);
+              float: left;
+              font-weight: bold;
+              text-transform: uppercase;
+            }
+            
+            table td:last-child {
+              border-bottom: 0;
+            }
+          }
+
+          .btn-send-offer {
+            background-color: #35fbff;
+            border-radius: 0;
+          }
+
+          .offer-form {
+            display: none;
+          }
+    </style>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <div class="container">
+        <div class="container" id="table_container">
+            <table>
+                <thead>
+                  <tr>
+                    <th scope="col">Date of Publish</th>
+                    <th scope="col">Buyer</th>
+                    <th scope="col">Work Description</th>
+                    <th scope="col">Expair at</th>
+                    <th scope="col">Budget</th>
+                    <th scope="col">Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                    {% for job in jobList %} 
+                        <tr>
+                            <td data-label="Date of Publish">
+                                {{ job.created_at.date }}
+                            </td>
+                            <td data-label="Buyer">
+                                {{ job.author }}
+                            </td>
+                            <td data-label="Work Description">
+                                {{ job.work_description|truncatewords:20 }}
+                            </td>
+                            <td data-label="Expair at">
+                                {{ job.validate_until.date }}
+                            </td>
+                            <td data-label="Budget">
+                                ${{ job.budget }}
+                            </td>
+                            <td data-label="Action">
+                                <form class="form-group offer-form" method="post" id="offer-form-{{ job.id }}" 
+                                    action="{% url 'App_main:apply-job' id=job.id %}">
+                                    {% csrf_token %}
+                                    <div class="mb-3">
+                                        <label for="id-offer-text-{{ job.id }}" class="form-label">
+                                            Offer Text
+                                        </label>
+                                        <input type="text" class="form-control" name="offer-text" 
+                                            id="id-offer-text-{{ job.id }}" aria-describedby="helpId" placeholder="Write some offer text">
+                                        <small id="helpId" class="form-text text-muted">It is not mantatory</small>
+                                    </div>
+                                    <button class="btn btn-secondary" type="button"
+                                        onclick="document.getElementById('offer-form-{{ job.id }}').style.display='none'; document.getElementById('send-button-carrier-{{ job.id }}').style.display='block'">
+                                        Close
+                                    </button>
+                                    <button class="btn btn-send-offer" type="submit">
+                                        Send
+                                    </button>
+                                </form>
+                                <span id="send-button-carrier-{{ job.id }}">
+                                  <button class="btn btn-send-offer" 
+                                      onclick="document.getElementById('offer-form-{{ job.id }}').style.display='block'; document.getElementById('send-button-carrier-{{ job.id }}').style.display='none'">
+                                      Send Offer
+                                </button>
+                              </span>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+              </table>
+        </div>
+    </div>
+{% endblock %}
